@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "GymFlow Mobile",
+    "slug": "gymflow-mobile",
+    "scheme": "gymflow",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
+

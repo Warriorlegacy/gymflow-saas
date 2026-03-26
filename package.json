@@ -1,0 +1,25 @@
+{
+  "name": "gymflow-saas",
+  "private": true,
+  "version": "1.0.0",
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @gymflow/web --filter @gymflow/backend --filter @gymflow/mobile dev",
+    "dev:web": "pnpm --filter @gymflow/web dev",
+    "dev:backend": "pnpm --filter @gymflow/backend dev",
+    "dev:mobile": "pnpm --filter @gymflow/mobile start",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "format": "pnpm -r format",
+    "db:generate": "echo \"Use supabase/migrations/0001_init.sql with Supabase SQL editor or supabase db push\"",
+    "prepare": "echo \"Workspace ready\""
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "prettier": "^3.5.3",
+    "turbo": "^2.5.0",
+    "typescript": "^5.8.2"
+  }
+}
+
