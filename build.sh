@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+corepack enable
+pnpm install
+pnpm --filter @gymflow/lib build
+pnpm --filter @gymflow/ui build
+pnpm --filter @gymflow/services build
+pnpm --filter @gymflow/web build

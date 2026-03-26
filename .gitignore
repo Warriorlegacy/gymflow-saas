@@ -14,3 +14,6 @@ apps/mobile/.expo
 apps/mobile/dist
 apps/backend/dist
 
+
+.vercel
+.env*.local
