@@ -140,7 +140,12 @@ export interface DietPlan {
 export interface AILog {
   id: string;
   gym_id: string;
-  feature: "chatbot" | "diet_plan" | "workout_plan" | "message_generator";
+  feature:
+    | "chatbot"
+    | "diet_plan"
+    | "workout_plan"
+    | "message_generator"
+    | "report_summary";
   prompt: string;
   response?: string;
   created_at?: string;
@@ -158,6 +163,7 @@ export interface DashboardSnapshot {
   };
   recentMembers: Member[];
   pendingPayments: Payment[];
-  expiringMembers: Array<Pick<Member, "id" | "full_name" | "phone"> & { end_date: string }>;
+  expiringMembers: Array<
+    Pick<Member, "id" | "full_name" | "phone"> & { end_date: string }
+  >;
 }
-

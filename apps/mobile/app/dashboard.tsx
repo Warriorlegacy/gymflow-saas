@@ -50,6 +50,7 @@ export default function DashboardScreen() {
           ["/payments", "Payments"],
           ["/workouts", "Workouts"],
           ["/diet-plans", "Diet Plans"],
+          ["/profile", "Profile"],
         ].map(([href, label]) => (
           <Link
             key={href}
@@ -60,6 +61,7 @@ export default function DashboardScreen() {
                 | "/payments"
                 | "/workouts"
                 | "/diet-plans"
+                | "/profile"
             }
             asChild
           >

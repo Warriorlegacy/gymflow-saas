@@ -2,8 +2,9 @@ import "dotenv/config";
 
 export const env = {
   port: Number(process.env.BACKEND_PORT ?? 4000),
-  ollamaBaseUrl: process.env.OLLAMA_BASE_URL ?? "http://127.0.0.1:11434",
-  ollamaModel: process.env.OLLAMA_MODEL ?? "llama3.2:3b",
-  sessionPath: process.env.WHATSAPP_SESSION_PATH ?? "./.sessions"
+  groqApiKey: process.env.GROQ_API_KEY ?? "",
+  groqBaseUrl: process.env.GROQ_BASE_URL ?? "https://api.groq.com/openai/v1",
+  groqModel: process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile",
+  geminiApiKey: process.env.GEMINI_API_KEY ?? "",
+  sessionPath: process.env.WHATSAPP_SESSION_PATH ?? "./.sessions",
 };
-

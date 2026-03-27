@@ -12,6 +12,7 @@ const protectedRoutes = [
   "/workouts",
   "/diet-plans",
   "/reports",
+  "/billing",
   "/settings",
 ];
 
@@ -43,6 +44,7 @@ export const config = {
     "/workouts/:path*",
     "/diet-plans/:path*",
     "/reports/:path*",
+    "/billing/:path*",
     "/settings/:path*",
   ],
 };

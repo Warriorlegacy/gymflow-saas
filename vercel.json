@@ -1,5 +1,12 @@
 {
   "buildCommand": "corepack enable && pnpm install && pnpm --filter @gymflow/lib build && pnpm --filter @gymflow/ui build && pnpm --filter @gymflow/services build && pnpm --filter @gymflow/web build",
   "outputDirectory": "apps/web/.next",
-  "regions": ["iad1"]
+  "regions": ["bom1"],
+  "framework": "nextjs",
+  "installCommand": "corepack enable && pnpm install",
+  "functions": {
+    "apps/web/src/app/api/**/*.ts": {
+      "runtime": "nodejs20.x"
+    }
+  }
 }

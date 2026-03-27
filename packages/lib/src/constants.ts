@@ -31,5 +31,6 @@ export const navigationItems = [
   { href: "/workouts", label: "Workouts" },
   { href: "/diet-plans", label: "Diet Plans" },
   { href: "/reports", label: "Reports" },
+  { href: "/billing", label: "Billing" },
   { href: "/settings", label: "Settings" },
 ];

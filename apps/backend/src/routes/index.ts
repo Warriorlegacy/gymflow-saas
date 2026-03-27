@@ -15,9 +15,12 @@ import {
   updateResource,
 } from "../services/resource-service";
 import { sendWhatsAppMessage } from "../services/whatsapp-service";
+import { registerWebhookRoutes } from "./webhooks";
 
 export async function registerRoutes(app: FastifyInstance) {
   app.get("/health", async () => ({ ok: true }));
+
+  await registerWebhookRoutes(app);
 
   app.get("/api/dashboard", async (request) =>
     getDashboardSnapshot(getGymIdFromRequest(request.headers)),
