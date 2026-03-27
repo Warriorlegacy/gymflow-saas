@@ -169,20 +169,25 @@ export async function POST(request: Request) {
     // Try Groq first
     try {
       const result = await callGroq(systemPrompt, prompt);
-      return NextResponse.json({ output: result });
-    } catch {
+      return NextResponse.json({ output: result, provider: "groq" });
+    } catch (groqError) {
+      console.error("Groq failed:", groqError);
       // Groq failed, try Gemini
     }
 
     // Try Gemini as fallback
     try {
       const result = await callGemini(systemPrompt, prompt);
-      return NextResponse.json({ output: result });
-    } catch {
+      return NextResponse.json({ output: result, provider: "gemini" });
+    } catch (geminiError) {
+      console.error("Gemini failed:", geminiError);
       // Both failed, return demo
     }
 
-    return NextResponse.json({ output: generateDemoResponse(feature, prompt) });
+    return NextResponse.json({
+      output: generateDemoResponse(feature, prompt),
+      provider: "demo",
+    });
   } catch (error) {
     return NextResponse.json(
       {
