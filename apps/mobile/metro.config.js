@@ -6,19 +6,16 @@ const workspaceRoot = path.resolve(projectRoot, "../..");
 
 const config = getDefaultConfig(projectRoot);
 
-// Watch all files within the monorepo
+// 1. Watch all files within the monorepo
 config.watchFolders = [workspaceRoot];
 
-// Node modules resolution paths
+// 2. Let Metro know where to resolve packages and in what order
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, "node_modules"),
   path.resolve(workspaceRoot, "node_modules"),
 ];
 
-// Force Metro to resolve from node_modules first
-config.resolver.disableHierarchicalLookup = true;
-
-// Ensure metro-runtime and others are found
+// 3. Important for Expo 52: ensure metro-runtime and others are found
 config.resolver.sourceExts = [
   ...config.resolver.sourceExts,
   "mjs",
@@ -27,32 +24,10 @@ config.resolver.sourceExts = [
   "tsx",
 ];
 
-// Fix for monorepo packages - ensure they resolve correctly
+// 4. Add support for workspace packages
 config.resolver.extraNodeModules = {
   "@gymflow/lib": path.resolve(workspaceRoot, "packages", "lib"),
   "@gymflow/services": path.resolve(workspaceRoot, "packages", "services"),
-};
-
-// Add custom resolver for workspace packages
-const { resolveRequest } = config.resolver;
-config.resolver.resolveRequest = (context, moduleName, platform) => {
-  // Handle workspace packages
-  if (moduleName.startsWith("@gymflow/")) {
-    const packageName = moduleName.replace("@gymflow/", "");
-    const pkgPath = path.resolve(workspaceRoot, "packages", packageName);
-
-    // Return the path to the package's src directory for Metro to resolve
-    return {
-      filePath: path.join(pkgPath, "src/index.ts"),
-    };
-  }
-
-  // Default behavior for other modules
-  if (resolveRequest) {
-    return resolveRequest(context, moduleName, platform);
-  }
-
-  return context.resolveRequest(context, moduleName, platform);
 };
 
 module.exports = config;

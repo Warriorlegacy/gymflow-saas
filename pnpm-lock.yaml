@@ -81,6 +81,9 @@ importers:
       expo-linking:
         specifier: ~7.0.5
         version: 7.0.5(expo@52.0.49(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@expo/metro-runtime@4.0.1(react-native@0.76.9(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@18.3.28)(react@18.3.1)))(react-native@0.76.9(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@18.3.28)(react@18.3.1))(react@18.3.1))(react-native@0.76.9(@babel/core@7.29.0)(@babel/preset-env@7.29.2(@babel/core@7.29.0))(@types/react@18.3.28)(react@18.3.1))(react@18.3.1)
+      expo-modules-core:
+        specifier: ~2.2.3
+        version: 2.2.3
       expo-router:
         specifier: ~4.0.17
         version: 4.0.22(b4v3tzieqea6sw7oktdd6wbu2a)
@@ -176,6 +179,9 @@ importers:
 
   packages/lib:
     dependencies:
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
       zod:
         specifier: ^3.24.2
         version: 3.25.76
@@ -188,6 +194,9 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.49.4
         version: 2.100.0
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
 
   packages/ui:
     dependencies:
@@ -1152,7 +1161,7 @@ packages:
 
   '@expo/bunyan@4.0.1':
     resolution: {integrity: sha512-+Lla7nYSiHZirgK+U/uYzsLv/X+HaJienbD5AKX1UQZHYfWaP+9uuQluRB4GrEVWF0GZ7vEVp/jzaOT9k/SQlg==}
-    engines: {node: '>=0.10.0'}
+    engines: {'0': node >=0.10.0}
 
   '@expo/cli@0.22.28':
     resolution: {integrity: sha512-lvt72KNitGuixYD2l3SZmRKVu2G4zJpmg5V7WfUBNpmUU5oODBw/6qmiJ6kSLAlfDozscUk+BBGknBBzxUrwrA==}
