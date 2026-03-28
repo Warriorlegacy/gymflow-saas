@@ -1,43 +1,58 @@
 const { getDefaultConfig } = require("expo/metro-config");
 const path = require("path");
 
-// Find the project and workspace roots
 const projectRoot = __dirname;
 const workspaceRoot = path.resolve(projectRoot, "../..");
 
 const config = getDefaultConfig(projectRoot);
 
-// 1. Watch all files within the monorepo
+// Watch all files within the monorepo
 config.watchFolders = [workspaceRoot];
 
-// 2. Let Metro know where to resolve packages and in what order
+// Node modules resolution paths
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, "node_modules"),
   path.resolve(workspaceRoot, "node_modules"),
 ];
 
-// 3. Force Metro to resolve from node_modules first, and then workspaces
+// Force Metro to resolve from node_modules first
 config.resolver.disableHierarchicalLookup = true;
 
-// 4. Important for Expo 52: ensure metro-runtime and others are found
-config.resolver.sourceExts = [...config.resolver.sourceExts, "mjs", "cjs"];
+// Ensure metro-runtime and others are found
+config.resolver.sourceExts = [
+  ...config.resolver.sourceExts,
+  "mjs",
+  "cjs",
+  "ts",
+  "tsx",
+];
 
-// 5. Resolve monorepo packages properly
-config.resolver.unstable_enablePackageExports = false;
-
-// 6. Ensure proper resolution for expo-modules and workspace packages
-config.resolver.unstable_conditionNames = ["require", "node", "import"];
-
-// 7. Explicitly include workspace packages in the bundle
+// Fix for monorepo packages - ensure they resolve correctly
 config.resolver.extraNodeModules = {
-  "@gymflow/lib": path.resolve(workspaceRoot, "packages/lib"),
-  "@gymflow/services": path.resolve(workspaceRoot, "packages/services"),
+  "@gymflow/lib": path.resolve(workspaceRoot, "packages", "lib"),
+  "@gymflow/services": path.resolve(workspaceRoot, "packages", "services"),
 };
 
-// 8. Add explicit paths to workspace packages for bundler
-config.resolver.blockList = [];
+// Add custom resolver for workspace packages
+const { resolveRequest } = config.resolver;
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  // Handle workspace packages
+  if (moduleName.startsWith("@gymflow/")) {
+    const packageName = moduleName.replace("@gymflow/", "");
+    const pkgPath = path.resolve(workspaceRoot, "packages", packageName);
 
-// 9. Ensure workspace packages are discovered
-config.resolver.assetExts = [...config.resolver.assetExts, "db", "sqlite"];
+    // Return the path to the package's src directory for Metro to resolve
+    return {
+      filePath: path.join(pkgPath, "src/index.ts"),
+    };
+  }
+
+  // Default behavior for other modules
+  if (resolveRequest) {
+    return resolveRequest(context, moduleName, platform);
+  }
+
+  return context.resolveRequest(context, moduleName, platform);
+};
 
 module.exports = config;
