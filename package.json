@@ -3,6 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "pnpm --parallel --filter @gymflow/web --filter @gymflow/backend --filter @gymflow/mobile dev",
     "dev:web": "pnpm --filter @gymflow/web dev",

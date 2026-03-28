@@ -5,11 +5,43 @@
     "scheme": "gymflow",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "plugins": ["expo-router"],
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.warriorlegacy.gymflow",
+      "userInterfaceStyle": "light",
+      "icon": "./assets/icon.png"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.warriorlegacy.gymflow",
+      "userInterfaceStyle": "light"
+    },
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-asset"
+    ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "c5a76afa-444c-47f2-a802-7ccadc69deb7"
+      },
+      "router": {
+        "origin": false
+      }
+    },
+    "owner": "soloxpiyush"
   }
 }
-

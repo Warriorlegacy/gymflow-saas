@@ -3,6 +3,7 @@ import { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Image,
   Pressable,
   StyleSheet,
   Text,
@@ -44,20 +45,33 @@ export default function LoginScreen() {
 
   return (
     <Screen>
-      <MobileCard
-        title="GymFlow Mobile"
-        subtitle="Manage your gym from anywhere."
-      >
-        <Text style={styles.label}>Email</Text>
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          placeholder="owner@gymflow.demo"
-          placeholderTextColor={colors.muted}
-          keyboardType="email-address"
-          autoCapitalize="none"
+      <View style={styles.headerContainer}>
+        <Image
+          source={require("../assets/icon.png")}
+          style={styles.logoImage}
+          resizeMode="contain"
         />
+        <Text style={styles.headerTitle}>GymFlow</Text>
+        <Text style={styles.headerSubtitle}>The Modern Gym Stack</Text>
+      </View>
+
+      <MobileCard
+        title="Welcome back"
+        subtitle="Sign in to your gym control room"
+      >
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>OWNER EMAIL</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="owner@gymflow.demo"
+            placeholderTextColor={colors.muted}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+        </View>
+
         <Pressable
           style={styles.button}
           onPress={handleMagicLink}
@@ -69,32 +83,37 @@ export default function LoginScreen() {
             <Text style={styles.buttonText}>Send Magic Link</Text>
           )}
         </Pressable>
+
         <View style={styles.divider}>
           <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>or</Text>
+          <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
           <View style={styles.dividerLine} />
         </View>
+
         <Pressable
           style={styles.outlineButton}
           onPress={handleDemoAccess}
           disabled={loading}
         >
-          <Text style={styles.outlineText}>Enter Demo Tenant</Text>
+          <Text style={styles.outlineText}>Demo Tenant Access</Text>
         </Pressable>
+
         <Text style={styles.status}>{status}</Text>
       </MobileCard>
 
-      <MobileCard title="Features" subtitle="What you can do with GymFlow:">
+      <MobileCard title="Sellable SaaS" subtitle="Why GymFlow is market-ready:">
         {[
-          "Track member attendance",
-          "Manage payments & dues",
-          "View workout & diet plans",
-          "AI-powered coaching tools",
-          "WhatsApp reminders",
-        ].map((feature) => (
-          <View key={feature} style={styles.featureRow}>
-            <View style={styles.featureDot} />
-            <Text style={styles.featureText}>{feature}</Text>
+          { icon: "✓", text: "Zero infrastructure costs to run" },
+          { icon: "✓", text: "Multi-tenant data isolation" },
+          { icon: "✓", text: "AI-powered member benefits" },
+          { icon: "✓", text: "WhatsApp automation baked-in" },
+          { icon: "✓", text: "Cross-platform mobile & web" },
+        ].map((feature, i) => (
+          <View key={i} style={styles.featureRow}>
+            <View style={styles.featureIcon}>
+              <Text style={styles.featureIconText}>{feature.icon}</Text>
+            </View>
+            <Text style={styles.featureText}>{feature.text}</Text>
           </View>
         ))}
       </MobileCard>
@@ -103,26 +122,69 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  label: {
+  headerContainer: {
+    alignItems: "center",
+    marginVertical: 40,
+  },
+  logoImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 20,
+    marginBottom: 16,
+    shadowColor: colors.brand,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+  },
+  logoText: {
+    color: "#fff",
+    fontSize: 24,
+    fontWeight: "900",
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: "800",
+    color: colors.text,
+    letterSpacing: -0.5,
+  },
+  headerSubtitle: {
     fontSize: 14,
     fontWeight: "600",
-    color: colors.text,
+    color: colors.muted,
+    marginTop: 4,
+    textTransform: "uppercase",
+    letterSpacing: 2,
+  },
+  label: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: colors.muted,
+    marginBottom: 8,
+    letterSpacing: 1,
+  },
+  inputContainer: {
     marginBottom: 4,
   },
   input: {
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: colors.border,
     borderRadius: 16,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     backgroundColor: "#fff",
     fontSize: 16,
+    color: colors.text,
   },
   button: {
     backgroundColor: colors.brand,
-    paddingVertical: 14,
+    paddingVertical: 16,
     borderRadius: 16,
     alignItems: "center",
+    shadowColor: colors.brand,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 3,
   },
   buttonText: {
     color: "#fff",
@@ -130,11 +192,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   outlineButton: {
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: colors.border,
-    paddingVertical: 14,
+    paddingVertical: 16,
     borderRadius: 16,
     alignItems: "center",
+    backgroundColor: "#fff",
   },
   outlineText: {
     color: colors.text,
@@ -145,6 +208,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
+    marginVertical: 4,
   },
   dividerLine: {
     flex: 1,
@@ -153,27 +217,38 @@ const styles = StyleSheet.create({
   },
   dividerText: {
     color: colors.muted,
-    fontSize: 13,
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1,
   },
   status: {
     color: colors.muted,
     fontSize: 12,
     textAlign: "center",
+    marginTop: 4,
   },
   featureRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    paddingVertical: 6,
+    gap: 12,
+    paddingVertical: 8,
   },
-  featureDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.brand,
+  featureIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.brandSoft,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  featureIconText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: colors.brand,
   },
   featureText: {
-    fontSize: 14,
+    fontSize: 15,
+    fontWeight: "500",
     color: colors.text,
   },
 });
