@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "@types/react": "^18.3.18",
+    "eas-cli": "~15.0.15",
     "typescript": "^5.8.2"
   }
 }
