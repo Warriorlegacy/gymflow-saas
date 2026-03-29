@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import crypto from "node:crypto";
+import * as crypto from "crypto";
 
 export async function registerWebhookRoutes(app: FastifyInstance) {
   app.post("/api/webhooks/razorpay", async (request, reply) => {

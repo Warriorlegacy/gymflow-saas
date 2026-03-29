@@ -14,5 +14,9 @@ export const serviceEnv = {
     process.env.NEXT_PUBLIC_API_BASE_URL ??
     process.env.EXPO_PUBLIC_API_BASE_URL ??
     process.env.API_BASE_URL ??
-    "http://localhost:4000",
+    (process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : typeof window !== "undefined"
+      ? ""
+      : "http://localhost:4000"),
 };

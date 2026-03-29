@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { resourceSchemas } from "@gymflow/lib";
 import { getSupabaseClient, getGymIdFromHeaders } from "@/lib/supabase-api";
 
 type ResourceType =
@@ -22,6 +23,21 @@ const fallbackData: Record<ResourceType, any[]> = {
 
 function getTableName(resource: ResourceType): string {
   return resource === "diet-plans" ? "diet_plans" : resource;
+}
+
+function validateInput(resource: ResourceType, data: unknown) {
+  const schema = resourceSchemas[resource];
+  if (!schema) return { success: true, data };
+  const result = schema.safeParse(data);
+  if (!result.success) {
+    return {
+      success: false,
+      errors: result.error.errors.map(
+        (e) => `${e.path.join(".")}: ${e.message}`,
+      ),
+    };
+  }
+  return { success: true, data: result.data };
 }
 
 export function createResourceHandler(resource: ResourceType) {
@@ -54,6 +70,18 @@ export function createResourceHandler(resource: ResourceType) {
 
       try {
         const body = await request.json();
+
+        const validation = validateInput(resource, body);
+        if (!validation.success) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: `Validation failed: ${(validation as { errors: string[] }).errors.join(", ")}`,
+            },
+            { status: 400 },
+          );
+        }
+
         const record = { ...body, gym_id: gymId };
 
         if (!supabase) {
@@ -94,6 +122,17 @@ export function createResourceHandler(resource: ResourceType) {
       try {
         const body = await request.json();
         const id = params.id;
+
+        const validation = validateInput(resource, body);
+        if (!validation.success) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: `Validation failed: ${(validation as { errors: string[] }).errors.join(", ")}`,
+            },
+            { status: 400 },
+          );
+        }
 
         if (!supabase) {
           return NextResponse.json({

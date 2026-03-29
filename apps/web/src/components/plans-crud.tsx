@@ -17,22 +17,25 @@ export function PlansCrud({ plans }: { plans: Plan[] }) {
         duration_days: "30",
         price: "0",
         description: "",
-        is_active: true
+        is_active: true,
       }}
       fields={[
         { key: "name", label: "Plan name" },
         { key: "duration_days", label: "Duration days", type: "number" },
         { key: "price", label: "Price", type: "number" },
         { key: "description", label: "Description", type: "textarea" },
-        { key: "is_active", label: "Active", type: "checkbox" }
+        { key: "is_active", label: "Active", type: "checkbox" },
       ]}
       columns={[
-        { label: "Plan", render: (plan) => plan.name },
+        { label: "Plan", render: (plan) => plan.name, searchable: true },
         { label: "Duration", render: (plan) => `${plan.duration_days} days` },
         { label: "Price", render: (plan) => currency(plan.price) },
-        { label: "Status", render: (plan) => (plan.is_active ? "Active" : "Inactive") }
+        {
+          label: "Status",
+          render: (plan) => (plan.is_active ? "Active" : "Inactive"),
+          searchable: true,
+        },
       ]}
     />
   );
 }
-

@@ -5,20 +5,24 @@ import { env } from "./lib/env";
 import { registerRoutes } from "./routes";
 
 const app = Fastify({
-  logger: true
+  logger: true,
 });
 
-await app.register(cors, {
-  origin: true
-});
+async function main() {
+  await app.register(cors, {
+    origin: true,
+  });
 
-await app.register(rateLimit, {
-  max: 120,
-  timeWindow: "1 minute"
-});
+  await app.register(rateLimit, {
+    max: 120,
+    timeWindow: "1 minute",
+  });
 
-await registerRoutes(app);
+  await registerRoutes(app);
 
-app.listen({ port: env.port, host: "0.0.0.0" }).then(() => {
-  app.log.info(`GymFlow backend running on ${env.port}`);
-});
+  app.listen({ port: env.port, host: "0.0.0.0" }).then(() => {
+    app.log.info(`GymFlow backend running on ${env.port}`);
+  });
+}
+
+main().catch(console.error);

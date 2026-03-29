@@ -3,8 +3,16 @@
 import type { Member, Trainer } from "@gymflow/lib";
 import { ResourceCrud } from "./resource-crud";
 
-export function MembersCrud({ members, trainers }: { members: Member[]; trainers: Trainer[] }) {
-  const trainerMap = new Map(trainers.map((trainer) => [trainer.id, trainer.full_name]));
+export function MembersCrud({
+  members,
+  trainers,
+}: {
+  members: Member[];
+  trainers: Trainer[];
+}) {
+  const trainerMap = new Map(
+    trainers.map((trainer) => [trainer.id, trainer.full_name]),
+  );
 
   return (
     <ResourceCrud
@@ -22,7 +30,7 @@ export function MembersCrud({ members, trainers }: { members: Member[]; trainers
         status: "active",
         primary_goal: "",
         notes: "",
-        trainer_id: ""
+        trainer_id: "",
       }}
       fields={[
         { key: "full_name", label: "Full name" },
@@ -34,7 +42,10 @@ export function MembersCrud({ members, trainers }: { members: Member[]; trainers
           key: "status",
           label: "Status",
           type: "select",
-          options: ["active", "inactive", "expired", "lead"].map((value) => ({ label: value, value }))
+          options: ["active", "inactive", "expired", "lead"].map((value) => ({
+            label: value,
+            value,
+          })),
         },
         { key: "primary_goal", label: "Primary goal" },
         { key: "notes", label: "Notes", type: "textarea" },
@@ -42,17 +53,33 @@ export function MembersCrud({ members, trainers }: { members: Member[]; trainers
           key: "trainer_id",
           label: "Trainer",
           type: "select",
-          options: trainers.map((trainer) => ({ label: trainer.full_name, value: trainer.id }))
-        }
+          options: trainers.map((trainer) => ({
+            label: trainer.full_name,
+            value: trainer.id,
+          })),
+        },
       ]}
       columns={[
-        { label: "Name", render: (member) => member.full_name },
-        { label: "Phone", render: (member) => member.phone },
-        { label: "Status", render: (member) => member.status },
+        {
+          label: "Name",
+          render: (member) => member.full_name,
+          searchable: true,
+        },
+        { label: "Phone", render: (member) => member.phone, searchable: true },
+        {
+          label: "Status",
+          render: (member) => member.status,
+          searchable: true,
+        },
         { label: "Goal", render: (member) => member.primary_goal ?? "-" },
-        { label: "Trainer", render: (member) => (member.trainer_id ? trainerMap.get(member.trainer_id) ?? "-" : "-") }
+        {
+          label: "Trainer",
+          render: (member) =>
+            member.trainer_id
+              ? (trainerMap.get(member.trainer_id) ?? "-")
+              : "-",
+        },
       ]}
     />
   );
 }
-

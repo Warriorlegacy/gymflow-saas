@@ -24,6 +24,7 @@ type FieldConfig = {
 type ColumnConfig<T> = {
   label: string;
   render: (item: T) => React.ReactNode;
+  searchable?: boolean;
 };
 
 export function ResourceCrud<T extends { id: string }>({
@@ -58,11 +59,19 @@ export function ResourceCrud<T extends { id: string }>({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [status, setStatus] = useState(description);
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const apiBaseUrl = useMemo(
-    () => process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:4000",
-    [],
-  );
+  const filteredItems = useMemo(() => {
+    if (!searchQuery.trim()) return items;
+    const query = searchQuery.toLowerCase();
+    return items.filter((item) => {
+      return columns.some((col) => {
+        if (!col.searchable) return false;
+        const value = col.render(item);
+        return String(value).toLowerCase().includes(query);
+      });
+    });
+  }, [items, searchQuery, columns]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -70,8 +79,8 @@ export function ResourceCrud<T extends { id: string }>({
 
     const isEditing = Boolean(editingId);
     const url = isEditing
-      ? `${apiBaseUrl}/api/${resource}/${editingId}`
-      : `${apiBaseUrl}/api/${resource}`;
+      ? `/api/${resource}/${editingId}`
+      : `/api/${resource}`;
     const method = isEditing ? "PUT" : "POST";
     const response = await fetch(url, {
       method,
@@ -108,7 +117,7 @@ export function ResourceCrud<T extends { id: string }>({
 
   async function handleDelete(id: string) {
     setLoading(true);
-    const response = await fetch(`${apiBaseUrl}/api/${resource}/${id}`, {
+    const response = await fetch(`/api/${resource}/${id}`, {
       method: "DELETE",
       headers: {
         "x-gym-id": DEMO_GYM_ID,
@@ -240,11 +249,23 @@ export function ResourceCrud<T extends { id: string }>({
       </Card>
 
       <Card className="space-y-4">
-        <div className="space-y-1">
-          <h3 className="text-lg font-semibold text-slate-950">
-            {title} records
-          </h3>
-          <p className="text-sm text-slate-500">{emptyState}</p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <h3 className="text-lg font-semibold text-slate-950">
+              {title} records
+            </h3>
+            <p className="text-sm text-slate-500">
+              {filteredItems.length} of {items.length} records
+            </p>
+          </div>
+          <div className="w-full sm:w-64">
+            <Input
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-9"
+            />
+          </div>
         </div>
         <div className="overflow-x-auto rounded-2xl border border-slate-200">
           <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
@@ -259,33 +280,49 @@ export function ResourceCrud<T extends { id: string }>({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 bg-white">
-              {items.map((item) => (
-                <tr key={item.id}>
-                  {columns.map((column) => (
-                    <td key={column.label} className="px-4 py-3 text-slate-700">
-                      {column.render(item)}
-                    </td>
-                  ))}
-                  <td className="px-4 py-3">
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => handleEdit(item)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => handleDelete(item.id)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
+              {filteredItems.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={columns.length + 1}
+                    className="px-4 py-8 text-center text-sm text-slate-400"
+                  >
+                    {searchQuery ? "No matching records found." : emptyState}
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredItems.map((item) => (
+                  <tr key={item.id}>
+                    {columns.map((column) => (
+                      <td
+                        key={column.label}
+                        className="px-4 py-3 text-slate-700"
+                      >
+                        {column.render(item)}
+                      </td>
+                    ))}
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(item)}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDelete(item.id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
