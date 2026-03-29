@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { demoDashboardSnapshot } from "@gymflow/lib";
-import { getSupabaseClient, getGymIdFromHeaders } from "@/lib/supabase-api";
+import { getSupabaseClient, getGymIdFromRequest } from "@/lib/supabase-api";
 
-export async function GET(request: Request) {
-  const gymId = getGymIdFromHeaders(request.headers);
+export async function GET(_request: Request) {
+  const gymId = getGymIdFromRequest();
   const supabase = getSupabaseClient();
 
   if (!supabase) {

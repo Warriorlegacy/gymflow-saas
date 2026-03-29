@@ -1,8 +1,18 @@
 import { useEffect, useState } from "react";
 
-export function useAsyncResource<T>(loader: () => Promise<T>, fallback: T) {
+interface UseAsyncResourceResult<T> {
+  data: T;
+  loading: boolean;
+  error: string | null;
+}
+
+export function useAsyncResource<T>(
+  loader: () => Promise<T>,
+  fallback: T,
+): UseAsyncResourceResult<T> {
   const [data, setData] = useState<T>(fallback);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -11,6 +21,13 @@ export function useAsyncResource<T>(loader: () => Promise<T>, fallback: T) {
       .then((result) => {
         if (mounted) {
           setData(result);
+          setError(null);
+        }
+      })
+      .catch((err) => {
+        if (mounted) {
+          console.error("Failed to load resource:", err);
+          setError(err instanceof Error ? err.message : "Failed to load data");
         }
       })
       .finally(() => {
@@ -24,6 +41,5 @@ export function useAsyncResource<T>(loader: () => Promise<T>, fallback: T) {
     };
   }, [loader]);
 
-  return { data, loading };
+  return { data, loading, error };
 }
-

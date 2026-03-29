@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
-
-const DEMO_GYM_ID = "00000000-0000-0000-0000-000000000001";
+import { DEMO_GYM_ID } from "@gymflow/lib";
+import { getGymIdFromSession } from "./auth";
 
 export function getSupabaseClient() {
   const supabaseUrl =
@@ -19,8 +19,8 @@ export function getSupabaseClient() {
   });
 }
 
-export function getGymIdFromHeaders(headers: Headers): string {
-  return headers.get("x-gym-id") ?? DEMO_GYM_ID;
+export function getGymIdFromRequest(_headers?: Headers): string {
+  return getGymIdFromSession() ?? DEMO_GYM_ID;
 }
 
 export { DEMO_GYM_ID };

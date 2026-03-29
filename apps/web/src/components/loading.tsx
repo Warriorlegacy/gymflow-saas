@@ -29,6 +29,8 @@ export function LoadingCard() {
   );
 }
 
+const COL_WIDTHS = [80, 100, 70, 90, 110, 85, 95, 75];
+
 export function LoadingTable({
   rows = 5,
   cols = 4,
@@ -52,7 +54,9 @@ export function LoadingTable({
               <div
                 key={colIndex}
                 className="h-4 rounded bg-slate-100"
-                style={{ width: `${Math.random() * 40 + 60}px` }}
+                style={{
+                  width: `${COL_WIDTHS[colIndex % COL_WIDTHS.length]}px`,
+                }}
               />
             ))}
           </div>

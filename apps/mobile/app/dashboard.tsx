@@ -10,7 +10,7 @@ import { colors } from "../src/lib/theme";
 
 export default function DashboardScreen() {
   const loadDashboard = useCallback(() => api.getDashboard(), []);
-  const { data, loading } = useAsyncResource(
+  const { data, loading, error } = useAsyncResource(
     loadDashboard,
     demoDashboardSnapshot,
   );
@@ -22,9 +22,18 @@ export default function DashboardScreen() {
         title="Dashboard"
         subtitle="Quick gym health snapshot from the mobile app."
       >
-        <Text style={styles.helper}>
-          {loading ? "Syncing from backend..." : "Live API with demo fallback."}
-        </Text>
+        {error ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+            <Text style={styles.helper}>Showing demo data instead.</Text>
+          </View>
+        ) : (
+          <Text style={styles.helper}>
+            {loading
+              ? "Syncing from backend..."
+              : "Live API with demo fallback."}
+          </Text>
+        )}
         <View style={styles.grid}>
           {[
             ["Members", String(metrics.totalMembers)],
@@ -111,5 +120,16 @@ const styles = StyleSheet.create({
   helper: {
     color: colors.muted,
     fontSize: 12,
+  },
+  errorContainer: {
+    backgroundColor: "#fef2f2",
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  errorText: {
+    color: "#dc2626",
+    fontSize: 13,
+    fontWeight: "500",
   },
 });

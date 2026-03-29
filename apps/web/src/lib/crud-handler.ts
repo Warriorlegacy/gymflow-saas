@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { resourceSchemas } from "@gymflow/lib";
-import { getSupabaseClient, getGymIdFromHeaders } from "@/lib/supabase-api";
+import { getSupabaseClient, getGymIdFromRequest } from "@/lib/supabase-api";
 
 type ResourceType =
   | "members"
@@ -43,7 +43,7 @@ function validateInput(resource: ResourceType, data: unknown) {
 export function createResourceHandler(resource: ResourceType) {
   return {
     GET: async (request: Request) => {
-      const gymId = getGymIdFromHeaders(request.headers);
+      const gymId = getGymIdFromRequest();
       const supabase = getSupabaseClient();
 
       if (!supabase) {
@@ -65,7 +65,7 @@ export function createResourceHandler(resource: ResourceType) {
     },
 
     POST: async (request: Request) => {
-      const gymId = getGymIdFromHeaders(request.headers);
+      const gymId = getGymIdFromRequest();
       const supabase = getSupabaseClient();
 
       try {
@@ -116,7 +116,7 @@ export function createResourceHandler(resource: ResourceType) {
     },
 
     PUT: async (request: Request, { params }: { params: { id: string } }) => {
-      const gymId = getGymIdFromHeaders(request.headers);
+      const gymId = getGymIdFromRequest();
       const supabase = getSupabaseClient();
 
       try {
@@ -171,7 +171,7 @@ export function createResourceHandler(resource: ResourceType) {
       request: Request,
       { params }: { params: { id: string } },
     ) => {
-      const gymId = getGymIdFromHeaders(request.headers);
+      const gymId = getGymIdFromRequest();
       const supabase = getSupabaseClient();
 
       try {
