@@ -19,7 +19,7 @@ async function callGroq(
 ): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY ?? "";
   const baseUrl = process.env.GROQ_BASE_URL ?? "https://api.groq.com/openai/v1";
-  const model = process.env.GROQ_MODEL ?? "openai/gpt-oss-120b";
+  const model = process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile";
 
   if (!apiKey) {
     throw new Error("Groq API key not configured");
