@@ -1,7 +1,8 @@
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { AuthDetector } from "@/components/auth-detector";
 
 export const metadata: Metadata = {
   title: "GymFlow — All-in-One Gym Management SaaS",
@@ -23,6 +24,16 @@ export const metadata: Metadata = {
       "Members, billing, AI coaching, attendance, WhatsApp — one platform, zero cost to start.",
     type: "website",
   },
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -43,9 +54,14 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
           rel="stylesheet"
         />
+        <link
+          rel="dns-prefetch"
+          href="https://jsjrspjygwbtgocojzjh.supabase.co"
+        />
       </head>
       <body className="min-h-screen bg-surface-50 font-sans">
         {children}
+        <AuthDetector />
         <Analytics />
         <SpeedInsights />
       </body>

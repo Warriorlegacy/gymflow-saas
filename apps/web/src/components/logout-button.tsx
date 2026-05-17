@@ -1,12 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { signOutBrowser } from "@gymflow/services";
 import { Button } from "@gymflow/ui";
 
 export function LogoutButton() {
   const router = useRouter();
 
   async function handleLogout() {
+    await signOutBrowser();
     await fetch("/api/demo-logout", { method: "POST" });
     router.push("/login");
     router.refresh();

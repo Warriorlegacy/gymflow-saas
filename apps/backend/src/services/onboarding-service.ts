@@ -11,6 +11,10 @@ export async function createGymOnboarding(payload: {
   state: string;
   subscription_tier?: "starter" | "growth" | "scale";
 }) {
+  if (!supabaseAdmin) {
+    throw new Error("Database not configured");
+  }
+
   const gymId = randomUUID();
 
   const gymRecord = {
@@ -23,7 +27,7 @@ export async function createGymOnboarding(payload: {
     city: payload.city,
     state: payload.state,
     subscription_tier: payload.subscription_tier ?? "starter",
-    subscription_status: "trial"
+    subscription_status: "trial",
   };
 
   const ownerRecord = {
@@ -33,32 +37,30 @@ export async function createGymOnboarding(payload: {
     email: payload.owner_email,
     phone: payload.phone,
     role: "owner",
-    is_active: true
+    is_active: true,
   };
 
-  if (!supabaseAdmin) {
-    return {
-      success: true,
-      mode: "demo",
-      gym: gymRecord,
-      owner: ownerRecord
-    };
-  }
-
-  const { data: gym, error: gymError } = await supabaseAdmin.from("gyms").insert(gymRecord).select("*").single();
+  const { data: gym, error: gymError } = await supabaseAdmin
+    .from("gyms")
+    .insert(gymRecord)
+    .select("*")
+    .single();
   if (gymError) {
     throw gymError;
   }
 
-  const { data: owner, error: ownerError } = await supabaseAdmin.from("users").insert(ownerRecord).select("*").single();
+  const { data: owner, error: ownerError } = await supabaseAdmin
+    .from("users")
+    .insert(ownerRecord)
+    .select("*")
+    .single();
   if (ownerError) {
     throw ownerError;
   }
 
   return {
     success: true,
-    mode: "supabase",
     gym,
-    owner
+    owner,
   };
 }

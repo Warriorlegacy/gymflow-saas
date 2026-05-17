@@ -1,16 +1,15 @@
-import { demoSubscriptionPlans } from "@gymflow/lib";
+import { subscriptionPlans } from "@gymflow/lib";
 
 export function createDemoSubscription(tier: string) {
-  const plan = demoSubscriptionPlans.find((entry) => entry.code === tier);
+  const plan = subscriptionPlans.find((entry) => entry.code === tier);
   if (!plan) {
-    throw new Error("Invalid demo tier");
+    throw new Error("Invalid subscription tier");
   }
 
   return {
     success: true,
     tier: plan.code,
     amount: plan.amount,
-    message: `Demo subscription for ${plan.name} activated.`
+    message: `Subscription for ${plan.name} activated.`,
   };
 }
-

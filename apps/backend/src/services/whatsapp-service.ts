@@ -8,7 +8,7 @@ async function makeSocket() {
   const auth = await useMultiFileAuthState(env.sessionPath);
   const socket = makeWASocket({
     auth: auth.state,
-    printQRInTerminal: true
+    printQRInTerminal: true,
   });
 
   socket.ev.on("creds.update", auth.saveCreds);
@@ -16,16 +16,13 @@ async function makeSocket() {
 }
 
 export async function sendWhatsAppMessage(to: string, message: string) {
-  try {
-    if (!existsSync(env.sessionPath)) {
-      return { success: true, provider: "demo", note: "No Baileys session found, running in demo mode." };
-    }
-
-    cachedSocket ??= await makeSocket();
-    await cachedSocket.sendMessage(`${to.replace(/\D/g, "")}@s.whatsapp.net`, { text: message });
-    return { success: true, provider: "baileys" };
-  } catch {
-    return { success: true, provider: "demo", note: "Failed to send live message, returned demo success." };
+  if (!existsSync(env.sessionPath)) {
+    throw new Error("WhatsApp not configured. No Baileys session found.");
   }
-}
 
+  cachedSocket ??= await makeSocket();
+  await cachedSocket.sendMessage(`${to.replace(/\D/g, "")}@s.whatsapp.net`, {
+    text: message,
+  });
+  return { success: true, provider: "baileys" };
+}

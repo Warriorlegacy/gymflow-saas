@@ -12,7 +12,7 @@ export async function sendMagicLink(email: string) {
   const { error } = await client.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${window.location.origin}/dashboard`
+      emailRedirectTo: `${window.location.origin}/auth/callback`
     }
   });
 

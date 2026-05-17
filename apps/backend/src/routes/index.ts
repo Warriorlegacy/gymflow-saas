@@ -16,37 +16,38 @@ import {
 } from "../services/resource-service";
 import { sendWhatsAppMessage } from "../services/whatsapp-service";
 import { registerWebhookRoutes } from "./webhooks";
+import { registerMemberRoutes } from "./member-auth";
+import { registerGymOwnerRoutes } from "./owner-auth";
+
+function requireGymId(
+  headers: Record<string, string | string[] | undefined>,
+): string {
+  const gymId = getGymIdFromRequest(headers);
+  if (!gymId) {
+    throw new Error("Missing x-gym-id header");
+  }
+  return gymId;
+}
 
 export async function registerRoutes(app: FastifyInstance) {
   app.get("/health", async () => ({ ok: true }));
 
   await registerWebhookRoutes(app);
+  await registerMemberRoutes(app);
+  await registerGymOwnerRoutes(app);
 
-  app.get("/api/dashboard", async (request) =>
-    getDashboardSnapshot(getGymIdFromRequest(request.headers)),
-  );
-  app.get("/api/members", async (request) =>
-    getResourceCollection("members", getGymIdFromRequest(request.headers)),
-  );
-  app.get("/api/plans", async (request) =>
-    getResourceCollection("plans", getGymIdFromRequest(request.headers)),
-  );
-  app.get("/api/payments", async (request) =>
-    getResourceCollection("payments", getGymIdFromRequest(request.headers)),
-  );
-  app.get("/api/attendance", async (request) =>
-    getResourceCollection("attendance", getGymIdFromRequest(request.headers)),
-  );
-  app.get("/api/trainers", async (request) =>
-    getResourceCollection("trainers", getGymIdFromRequest(request.headers)),
-  );
-  app.get("/api/workouts", async (request) =>
-    getResourceCollection("workouts", getGymIdFromRequest(request.headers)),
-  );
-  app.get("/api/diet-plans", async (request) =>
-    getResourceCollection("diet-plans", getGymIdFromRequest(request.headers)),
-  );
+  // Dashboard
+  app.get("/api/dashboard", async (request, reply) => {
+    try {
+      const gymId = requireGymId(request.headers);
+      return getDashboardSnapshot(gymId);
+    } catch (error) {
+      reply.code(401);
+      return { error: error instanceof Error ? error.message : "Unauthorized" };
+    }
+  });
 
+  // Resource GET endpoints
   for (const resource of [
     "members",
     "plans",
@@ -56,9 +57,22 @@ export async function registerRoutes(app: FastifyInstance) {
     "workouts",
     "diet-plans",
   ] as const) {
+    app.get(`/api/${resource}`, async (request, reply) => {
+      try {
+        const gymId = requireGymId(request.headers);
+        return getResourceCollection(resource, gymId);
+      } catch (error) {
+        reply.code(401);
+        return {
+          error: error instanceof Error ? error.message : "Unauthorized",
+        };
+      }
+    });
+
+    // Resource POST endpoints
     app.post(`/api/${resource}`, async (request, reply) => {
       try {
-        const gymId = getGymIdFromRequest(request.headers);
+        const gymId = requireGymId(request.headers);
         const payload = parseWithSchema(
           resourceSchemas[resource],
           request.body,
@@ -76,43 +90,94 @@ export async function registerRoutes(app: FastifyInstance) {
         };
       }
     });
-    app.put(`/api/${resource}/:id`, async (request) =>
-      updateResource(
-        resource,
-        getGymIdFromRequest(request.headers),
-        (request.params as { id: string }).id,
-        parseWithSchema(resourceSchemas[resource], request.body) as Record<
-          string,
-          unknown
-        >,
-      ),
-    );
-    app.delete(`/api/${resource}/:id`, async (request) =>
-      deleteResource(
-        resource,
-        getGymIdFromRequest(request.headers),
-        (request.params as { id: string }).id,
-      ),
-    );
+
+    // Resource PUT endpoints
+    app.put(`/api/${resource}/:id`, async (request, reply) => {
+      try {
+        const gymId = requireGymId(request.headers);
+        const payload = parseWithSchema(
+          resourceSchemas[resource],
+          request.body,
+        );
+        return updateResource(
+          resource,
+          gymId,
+          (request.params as { id: string }).id,
+          payload as Record<string, unknown>,
+        );
+      } catch (error) {
+        reply.code(400);
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : "Invalid request",
+        };
+      }
+    });
+
+    // Resource DELETE endpoints
+    app.delete(`/api/${resource}/:id`, async (request, reply) => {
+      try {
+        const gymId = requireGymId(request.headers);
+        return deleteResource(
+          resource,
+          gymId,
+          (request.params as { id: string }).id,
+        );
+      } catch (error) {
+        reply.code(400);
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : "Invalid request",
+        };
+      }
+    });
   }
 
-  app.post("/api/ai/generate", async (request) => {
-    const body = request.body as { feature: string; prompt: string };
-    return {
-      output: await generateAIResponse(body.feature, body.prompt),
-    };
+  // AI generation
+  app.post("/api/ai/generate", async (request, reply) => {
+    try {
+      const body = request.body as { feature: string; prompt: string };
+      return {
+        output: await generateAIResponse(body.feature, body.prompt),
+      };
+    } catch (error) {
+      reply.code(500);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "AI generation failed",
+      };
+    }
   });
 
-  app.post("/api/whatsapp/send", async (request) => {
-    const body = request.body as { to: string; message: string };
-    return sendWhatsAppMessage(body.to, body.message);
+  // WhatsApp
+  app.post("/api/whatsapp/send", async (request, reply) => {
+    try {
+      const body = request.body as { to: string; message: string };
+      return sendWhatsAppMessage(body.to, body.message);
+    } catch (error) {
+      reply.code(500);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "WhatsApp send failed",
+      };
+    }
   });
 
-  app.post("/api/billing/demo-subscribe", async (request) => {
-    const body = request.body as { tier: string };
-    return createDemoSubscription(body.tier);
+  // Billing
+  app.post("/api/billing/demo-subscribe", async (request, reply) => {
+    try {
+      const body = request.body as { tier: string };
+      return createDemoSubscription(body.tier);
+    } catch (error) {
+      reply.code(400);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Subscription failed",
+      };
+    }
   });
 
+  // Onboarding
   app.post("/api/onboarding/gym", async (request, reply) => {
     try {
       const payload = parseWithSchema(onboardingGymSchema, request.body);

@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@gymflow/ui";
+import { useEffect } from "react";
 
 export function ErrorBoundary({
   error,
@@ -9,6 +10,11 @@ export function ErrorBoundary({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  useEffect(() => {
+    // Log error to console in development
+    console.error("ErrorBoundary caught:", error);
+  }, [error]);
+
   return (
     <div className="flex min-h-[400px] flex-col items-center justify-center gap-4 p-8">
       <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-50">
@@ -40,4 +46,26 @@ export function ErrorBoundary({
       </Button>
     </div>
   );
+}
+
+// Wrapper component for error handling
+export function withErrorBoundary<P extends object>(
+  Component: React.ComponentType<P>,
+  fallback?: React.ReactNode,
+) {
+  return function WithErrorBoundaryWrapper(props: P) {
+    try {
+      return <Component {...props} />;
+    } catch (err) {
+      console.error("Component error:", err);
+      return (
+        fallback || (
+          <ErrorBoundary
+            error={err as Error}
+            reset={() => window.location.reload()}
+          />
+        )
+      );
+    }
+  };
 }

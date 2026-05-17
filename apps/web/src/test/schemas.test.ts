@@ -4,7 +4,6 @@ import {
   planSchema,
   paymentSchema,
   trainerSchema,
-  demoLoginSchema,
 } from "@gymflow/lib";
 
 describe("memberSchema", () => {
@@ -146,34 +145,6 @@ describe("trainerSchema", () => {
       email: "neha@gym.com",
     };
     const result = trainerSchema.safeParse(invalidTrainer);
-    expect(result.success).toBe(false);
-  });
-});
-
-describe("demoLoginSchema", () => {
-  it("should validate a valid demo login", () => {
-    const validLogin = {
-      email: "owner@gymflow.demo",
-      name: "Demo Owner",
-    };
-    const result = demoLoginSchema.safeParse(validLogin);
-    expect(result.success).toBe(true);
-  });
-
-  it("should reject login without email", () => {
-    const invalidLogin = {
-      name: "Demo Owner",
-    };
-    const result = demoLoginSchema.safeParse(invalidLogin);
-    expect(result.success).toBe(false);
-  });
-
-  it("should reject login with invalid email", () => {
-    const invalidLogin = {
-      email: "not-an-email",
-      name: "Demo Owner",
-    };
-    const result = demoLoginSchema.safeParse(invalidLogin);
     expect(result.success).toBe(false);
   });
 });

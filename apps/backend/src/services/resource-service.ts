@@ -5,39 +5,45 @@ function normalizeTableName(resource: string) {
   return resource === "diet-plans" ? "diet_plans" : resource;
 }
 
-export async function createResource(resource: string, gymId: string, payload: Record<string, unknown>) {
+export async function createResource(
+  resource: string,
+  gymId: string,
+  payload: Record<string, unknown>,
+) {
   const table = normalizeTableName(resource);
+
+  if (!supabaseAdmin) {
+    throw new Error("Database not configured");
+  }
+
   const record = {
     id: randomUUID(),
     gym_id: gymId,
-    ...payload
+    ...payload,
   };
 
-  if (!supabaseAdmin) {
-    return { success: true, mode: "demo", record };
-  }
-
-  const { data, error } = await supabaseAdmin.from(table).insert(record).select("*").single();
+  const { data, error } = await supabaseAdmin
+    .from(table)
+    .insert(record)
+    .select("*")
+    .single();
   if (error) {
     throw error;
   }
 
-  return { success: true, mode: "supabase", record: data };
+  return { success: true, record: data };
 }
 
-export async function updateResource(resource: string, gymId: string, id: string, payload: Record<string, unknown>) {
+export async function updateResource(
+  resource: string,
+  gymId: string,
+  id: string,
+  payload: Record<string, unknown>,
+) {
   const table = normalizeTableName(resource);
 
   if (!supabaseAdmin) {
-    return {
-      success: true,
-      mode: "demo",
-      record: {
-        id,
-        gym_id: gymId,
-        ...payload
-      }
-    };
+    throw new Error("Database not configured");
   }
 
   const { data, error } = await supabaseAdmin
@@ -52,20 +58,28 @@ export async function updateResource(resource: string, gymId: string, id: string
     throw error;
   }
 
-  return { success: true, mode: "supabase", record: data };
+  return { success: true, record: data };
 }
 
-export async function deleteResource(resource: string, gymId: string, id: string) {
+export async function deleteResource(
+  resource: string,
+  gymId: string,
+  id: string,
+) {
   const table = normalizeTableName(resource);
 
   if (!supabaseAdmin) {
-    return { success: true, mode: "demo", id };
+    throw new Error("Database not configured");
   }
 
-  const { error } = await supabaseAdmin.from(table).delete().eq("id", id).eq("gym_id", gymId);
+  const { error } = await supabaseAdmin
+    .from(table)
+    .delete()
+    .eq("id", id)
+    .eq("gym_id", gymId);
   if (error) {
     throw error;
   }
 
-  return { success: true, mode: "supabase", id };
+  return { success: true, id };
 }

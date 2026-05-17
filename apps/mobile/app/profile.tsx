@@ -1,53 +1,80 @@
-import { demoUser, demoGym } from "@gymflow/lib";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { api } from "@gymflow/services";
+import { useCallback } from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { MobileCard } from "../src/components/mobile-card";
 import { Screen } from "../src/components/screen";
+import { useAsyncResource } from "../src/hooks/use-async-resource";
 import { colors } from "../src/lib/theme";
 
+const emptyProfile = {
+  gym: null,
+  user: null,
+};
+
 export default function ProfileScreen() {
+  const loadProfile = useCallback(async () => {
+    try {
+      const dashboard = await api.getDashboard();
+      return {
+        gym: dashboard.gym,
+        user: null,
+      };
+    } catch {
+      return emptyProfile;
+    }
+  }, []);
+
+  const { data, loading, error } = useAsyncResource(loadProfile, emptyProfile);
+
+  if (loading) {
+    return (
+      <Screen>
+        <MobileCard title="Profile" subtitle="Loading your account details...">
+          <ActivityIndicator size="large" color={colors.brand} />
+        </MobileCard>
+      </Screen>
+    );
+  }
+
   return (
     <Screen>
       <MobileCard
         title="Profile"
         subtitle="Your account details and gym information."
       >
-        <View style={styles.section}>
-          <Text style={styles.label}>Name</Text>
-          <Text style={styles.value}>{demoUser.full_name}</Text>
-        </View>
-        <View style={styles.section}>
-          <Text style={styles.label}>Email</Text>
-          <Text style={styles.value}>{demoUser.email}</Text>
-        </View>
-        <View style={styles.section}>
-          <Text style={styles.label}>Role</Text>
-          <Text style={styles.value}>{demoUser.role}</Text>
-        </View>
-        <View style={styles.section}>
-          <Text style={styles.label}>Phone</Text>
-          <Text style={styles.value}>{demoUser.phone ?? "-"}</Text>
-        </View>
-      </MobileCard>
-
-      <MobileCard title="Gym Info" subtitle="Current gym tenant details.">
-        <View style={styles.section}>
-          <Text style={styles.label}>Gym Name</Text>
-          <Text style={styles.value}>{demoGym.name}</Text>
-        </View>
-        <View style={styles.section}>
-          <Text style={styles.label}>City</Text>
-          <Text style={styles.value}>{demoGym.city}</Text>
-        </View>
-        <View style={styles.section}>
-          <Text style={styles.label}>State</Text>
-          <Text style={styles.value}>{demoGym.state}</Text>
-        </View>
-        <View style={styles.section}>
-          <Text style={styles.label}>Subscription</Text>
-          <Text style={styles.value}>
-            {demoGym.subscription_tier} - {demoGym.subscription_status}
-          </Text>
-        </View>
+        {error ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        ) : (
+          <>
+            <View style={styles.section}>
+              <Text style={styles.label}>Gym Name</Text>
+              <Text style={styles.value}>{data.gym?.name || "-"}</Text>
+            </View>
+            <View style={styles.section}>
+              <Text style={styles.label}>City</Text>
+              <Text style={styles.value}>{data.gym?.city || "-"}</Text>
+            </View>
+            <View style={styles.section}>
+              <Text style={styles.label}>State</Text>
+              <Text style={styles.value}>{data.gym?.state || "-"}</Text>
+            </View>
+            <View style={styles.section}>
+              <Text style={styles.label}>Subscription</Text>
+              <Text style={styles.value}>
+                {data.gym?.subscription_tier || "starter"} -{" "}
+                {data.gym?.subscription_status || "trial"}
+              </Text>
+            </View>
+          </>
+        )}
       </MobileCard>
 
       <MobileCard title="Settings" subtitle="App preferences.">
@@ -106,5 +133,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     color: "#dc2626",
+  },
+  errorContainer: {
+    backgroundColor: "#fef2f2",
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  errorText: {
+    color: "#dc2626",
+    fontSize: 13,
+    fontWeight: "500",
   },
 });

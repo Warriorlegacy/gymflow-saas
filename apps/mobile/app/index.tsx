@@ -1,5 +1,5 @@
-import { Link, useRouter } from "expo-router";
-import { useState } from "react";
+import { useRouter } from "expo-router";
+import { useCallback, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -10,38 +10,66 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { sendMagicLink } from "@gymflow/services";
 import { Screen } from "../src/components/screen";
 import { MobileCard } from "../src/components/mobile-card";
 import { colors } from "../src/lib/theme";
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [email, setEmail] = useState("owner@gymflow.demo");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [status, setStatus] = useState(
-    "Use Supabase magic link or enter the demo tenant.",
+    "Sign in with your gym owner credentials.",
   );
   const [loading, setLoading] = useState(false);
+  const passwordRef = useRef<TextInput>(null);
 
-  async function handleMagicLink() {
-    if (!email) {
-      Alert.alert("Error", "Please enter an email address.");
+  const handleLogin = useCallback(async () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please enter email and password.");
       return;
     }
-    setLoading(true);
-    const result = await sendMagicLink(email);
-    setStatus(result.message);
-    setLoading(false);
-  }
 
-  function handleDemoAccess() {
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert("Error", "Please enter a valid email address.");
+      return;
+    }
+
     setLoading(true);
-    setStatus("Entering demo tenant...");
-    setTimeout(() => {
-      setLoading(false);
-      router.push("/dashboard");
-    }, 500);
-  }
+    try {
+      const API_BASE_URL =
+        process.env.EXPO_PUBLIC_API_BASE_URL || "http://localhost:4000";
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
+
+      const response = await fetch(`${API_BASE_URL}/api/auth/login-owner`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.toLowerCase().trim(), password }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+
+      const result = await response.json();
+      if (result.success) {
+        setStatus("Login successful!");
+        router.push("/dashboard");
+      } else {
+        setStatus(result.error || "Login failed");
+      }
+    } catch (error: any) {
+      if (error.name === "AbortError") {
+        setStatus("Connection timeout. Please try again.");
+      } else {
+        setStatus("Connection error. Please check your internet.");
+      }
+    }
+    setLoading(false);
+  }, [email, password, router]);
 
   return (
     <Screen>
@@ -60,48 +88,62 @@ export default function LoginScreen() {
         subtitle="Sign in to your gym control room"
       >
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>OWNER EMAIL</Text>
+          <Text style={styles.label}>EMAIL</Text>
           <TextInput
             style={styles.input}
             value={email}
             onChangeText={setEmail}
-            placeholder="owner@gymflow.demo"
+            placeholder="owner@mygym.com"
             placeholderTextColor={colors.muted}
             keyboardType="email-address"
             autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>PASSWORD</Text>
+          <TextInput
+            ref={passwordRef}
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Enter your password"
+            placeholderTextColor={colors.muted}
+            secureTextEntry
+            returnKeyType="done"
+            onSubmitEditing={handleLogin}
           />
         </View>
 
         <Pressable
-          style={styles.button}
-          onPress={handleMagicLink}
+          style={({ pressed }) => [
+            styles.button,
+            pressed && styles.buttonPressed,
+          ]}
+          onPress={handleLogin}
           disabled={loading}
         >
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.buttonText}>Send Magic Link</Text>
+            <Text style={styles.buttonText}>Sign In</Text>
           )}
-        </Pressable>
-
-        <View style={styles.divider}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
-          <View style={styles.dividerLine} />
-        </View>
-
-        <Pressable
-          style={styles.outlineButton}
-          onPress={handleDemoAccess}
-          disabled={loading}
-        >
-          <Text style={styles.outlineText}>Demo Tenant Access</Text>
         </Pressable>
 
         <Text style={styles.status}>{status}</Text>
       </MobileCard>
 
-      <MobileCard title="Sellable SaaS" subtitle="Why GymFlow is market-ready:">
+      <Pressable onPress={() => router.push("/member-login")}>
+        <Text style={styles.switchText}>
+          Are you a gym member?{" "}
+          <Text style={styles.switchLink}>Member Login</Text>
+        </Text>
+      </Pressable>
+
+      <MobileCard title="Features" subtitle="Why GymFlow is market-ready:">
         {[
           { icon: "✓", text: "Zero infrastructure costs to run" },
           { icon: "✓", text: "Multi-tenant data isolation" },
@@ -131,15 +173,6 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 20,
     marginBottom: 16,
-    shadowColor: colors.brand,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-  },
-  logoText: {
-    color: "#fff",
-    fontSize: 24,
-    fontWeight: "900",
   },
   headerTitle: {
     fontSize: 28,
@@ -163,7 +196,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   inputContainer: {
-    marginBottom: 4,
+    marginBottom: 12,
   },
   input: {
     borderWidth: 1.5,
@@ -180,52 +213,30 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 16,
     alignItems: "center",
-    shadowColor: colors.brand,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 3,
+  },
+  buttonPressed: {
+    opacity: 0.85,
   },
   buttonText: {
     color: "#fff",
     fontWeight: "700",
     fontSize: 16,
   },
-  outlineButton: {
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    paddingVertical: 16,
-    borderRadius: 16,
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  outlineText: {
-    color: colors.text,
-    fontWeight: "700",
-    fontSize: 16,
-  },
-  divider: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginVertical: 4,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.border,
-  },
-  dividerText: {
-    color: colors.muted,
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 1,
-  },
   status: {
     color: colors.muted,
     fontSize: 12,
     textAlign: "center",
     marginTop: 4,
+  },
+  switchText: {
+    textAlign: "center",
+    color: colors.muted,
+    fontSize: 14,
+    marginVertical: 8,
+  },
+  switchLink: {
+    color: colors.brand,
+    fontWeight: "700",
   },
   featureRow: {
     flexDirection: "row",

@@ -18,6 +18,7 @@
     "@gymflow/services": "workspace:*",
     "@gymflow/ui": "workspace:*",
     "@radix-ui/react-slot": "^1.1.2",
+    "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.49.4",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",

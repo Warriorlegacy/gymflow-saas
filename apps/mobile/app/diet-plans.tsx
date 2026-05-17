@@ -1,4 +1,3 @@
-import { demoDietPlans, demoMembers, demoTrainers } from "@gymflow/lib";
 import { api } from "@gymflow/services";
 import { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -7,15 +6,13 @@ import { Screen } from "../src/components/screen";
 import { useAsyncResource } from "../src/hooks/use-async-resource";
 import { colors } from "../src/lib/theme";
 
-const memberMap = new Map(demoMembers.map((m) => [m.id, m.full_name]));
-const trainerMap = new Map(demoTrainers.map((t) => [t.id, t.full_name]));
-
 export default function DietPlansScreen() {
   const loadDietPlans = useCallback(() => api.getDietPlans(), []);
-  const { data: dietPlans, loading } = useAsyncResource(
-    loadDietPlans,
-    demoDietPlans,
-  );
+  const {
+    data: dietPlans,
+    loading,
+    error,
+  } = useAsyncResource(loadDietPlans, []);
 
   return (
     <Screen>
@@ -23,10 +20,16 @@ export default function DietPlansScreen() {
         title="Diet Plans"
         subtitle="Nutrition plans assigned to gym members."
       >
-        <Text style={styles.helper}>
-          {loading ? "Loading diet plans..." : "Live API with demo fallback."}
-        </Text>
-        {dietPlans.map((plan) => (
+        {error ? (
+          <Text style={styles.error}>{error}</Text>
+        ) : (
+          <Text style={styles.helper}>
+            {loading
+              ? "Loading diet plans..."
+              : `${dietPlans.length} plans loaded`}
+          </Text>
+        )}
+        {dietPlans.map((plan: any) => (
           <View key={plan.id} style={styles.card}>
             <Text style={styles.title}>{plan.title}</Text>
             {plan.objective ? (
@@ -34,24 +37,20 @@ export default function DietPlansScreen() {
             ) : null}
             <View style={styles.row}>
               <Text style={styles.label}>
-                Member:{" "}
-                {plan.member_id ? (memberMap.get(plan.member_id) ?? "-") : "-"}
+                Member: {plan.members?.full_name || "-"}
               </Text>
               <Text style={styles.label}>
-                Trainer:{" "}
-                {plan.trainer_id
-                  ? (trainerMap.get(plan.trainer_id) ?? "-")
-                  : "-"}
+                Trainer: {plan.trainers?.full_name || "-"}
               </Text>
             </View>
             {plan.meals?.length ? (
               <View style={styles.meals}>
-                {plan.meals.map((meal, i) => (
+                {plan.meals.map((meal: any, i: number) => (
                   <View key={i} style={styles.mealRow}>
                     <Text style={styles.mealTime}>{meal.time}</Text>
                     <Text style={styles.mealName}>{meal.meal}</Text>
                     <Text style={styles.mealItems}>
-                      {meal.items.join(", ")}
+                      {meal.items?.join(", ")}
                     </Text>
                   </View>
                 ))}
@@ -62,6 +61,11 @@ export default function DietPlansScreen() {
             ) : null}
           </View>
         ))}
+        {!loading && dietPlans.length === 0 && (
+          <Text style={styles.helper}>
+            No diet plans yet. Create plans from the web dashboard.
+          </Text>
+        )}
       </MobileCard>
     </Screen>
   );
@@ -69,6 +73,7 @@ export default function DietPlansScreen() {
 
 const styles = StyleSheet.create({
   helper: { color: colors.muted, fontSize: 12 },
+  error: { color: "#dc2626", fontSize: 12 },
   card: {
     padding: 14,
     borderRadius: 16,

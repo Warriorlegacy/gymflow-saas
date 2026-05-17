@@ -1,6 +1,4 @@
-export const DEMO_GYM_ID = "00000000-0000-0000-0000-000000000001";
-
-export const demoSubscriptionPlans = [
+export const subscriptionPlans = [
   {
     code: "starter",
     name: "Starter",
@@ -10,7 +8,7 @@ export const demoSubscriptionPlans = [
       "Basic attendance tracking",
       "WhatsApp reminders",
       "Manual payments",
-      "Basic reports"
+      "Basic reports",
     ],
   },
   {
@@ -23,7 +21,7 @@ export const demoSubscriptionPlans = [
       "AI diet & workout builder",
       "Trainer management",
       "Advanced analytics",
-      "Priority WhatsApp support"
+      "Priority WhatsApp support",
     ],
   },
   {
@@ -36,7 +34,7 @@ export const demoSubscriptionPlans = [
       "API integrations",
       "Dedicated account manager",
       "SLA 99.9% uptime",
-      "Multi-gym sync"
+      "Multi-gym sync",
     ],
   },
 ] as const;

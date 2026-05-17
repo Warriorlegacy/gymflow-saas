@@ -1,11 +1,34 @@
-import { PropsWithChildren } from "react";
-import { SafeAreaView, ScrollView, StyleSheet } from "react-native";
+import { PropsWithChildren, useCallback } from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
 import { colors } from "../lib/theme";
 
 export function Screen({ children }: PropsWithChildren) {
+  const renderScrollView = useCallback(
+    (scrollViewProps: React.ComponentProps<typeof ScrollView>) => (
+      <ScrollView
+        {...scrollViewProps}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      />
+    ),
+    [],
+  );
+
   return (
     <SafeAreaView style={styles.safe}>
-      <ScrollView contentContainerStyle={styles.content}>{children}</ScrollView>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        {renderScrollView({ children })}
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -13,11 +36,13 @@ export function Screen({ children }: PropsWithChildren) {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: colors.background
+    backgroundColor: colors.background,
+  },
+  flex: {
+    flex: 1,
   },
   content: {
     padding: 20,
-    gap: 16
-  }
+    gap: 16,
+  },
 });
-

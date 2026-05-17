@@ -17,3 +17,10 @@ apps/backend/dist
 
 .vercel
 .env*.local
+
+# Local development ignore
+.claude/
+*.reg
+nul
+.env.vercel.prod
+.env.vercel

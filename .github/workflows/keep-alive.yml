@@ -1,0 +1,33 @@
+name: Supabase Database Keep-Alive
+
+on:
+  schedule:
+    # Run every 2 days at 11:30 AM UTC (staggered from Vercel's 9:00 AM UTC cron)
+    - cron: '30 11 */2 * *'
+  workflow_dispatch: # Allows manual triggering from the GitHub Actions UI
+
+jobs:
+  ping-db:
+    name: Ping Supabase via Production API
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Send keep-alive ping to production endpoint
+        run: |
+          echo "Sending keep-alive ping to GymFlow production endpoint..."
+          response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X GET "https://gymflow-saas.vercel.app/api/keep-alive")
+          
+          # Extract response body and status code
+          body=$(echo "$response" | sed '/HTTP_STATUS:/d')
+          status=$(echo "$response" | grep "HTTP_STATUS:" | cut -d':' -f2)
+          
+          echo "Response Status: $status"
+          echo "Response Body: $body"
+          
+          if [ "$status" -ne 200 ]; then
+            echo "❌ Keep-alive ping failed with status code $status"
+            exit 1
+          fi
+          
+          echo "✅ Keep-alive ping completed successfully!"

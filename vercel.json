@@ -3,9 +3,32 @@
   "outputDirectory": "apps/web/.next",
   "framework": "nextjs",
   "installCommand": "corepack enable && pnpm install",
+  "env": {
+    "NODE_OPTIONS": "--max-old-space-size=4096"
+  },
   "functions": {
     "apps/web/src/app/api/**/*.ts": {
-      "runtime": "nodejs20.x"
+      "runtime": "nodejs20.x",
+      "maxDuration": 30
     }
-  }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1",
+      "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+      "headers": {
+        "Access-Control-Allow-Origin": "https://gymflow-saas.vercel.app",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, x-gym-id",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+        "Access-Control-Allow-Credentials": "true"
+      }
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/keep-alive",
+      "schedule": "0 9 */2 * *"
+    }
+  ]
 }

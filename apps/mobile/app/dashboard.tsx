@@ -1,4 +1,3 @@
-import { demoDashboardSnapshot } from "@gymflow/lib";
 import { api } from "@gymflow/services";
 import { Link } from "expo-router";
 import { useCallback } from "react";
@@ -8,11 +7,26 @@ import { Screen } from "../src/components/screen";
 import { useAsyncResource } from "../src/hooks/use-async-resource";
 import { colors } from "../src/lib/theme";
 
+const emptyDashboard = {
+  gym: { name: "Your Gym" } as any,
+  metrics: {
+    totalMembers: 0,
+    activeMembers: 0,
+    monthlyRevenue: 0,
+    expiringSubscriptions: 0,
+    todayAttendance: 0,
+    trainers: 0,
+  },
+  recentMembers: [] as any[],
+  pendingPayments: [] as any[],
+  expiringMembers: [] as any[],
+};
+
 export default function DashboardScreen() {
   const loadDashboard = useCallback(() => api.getDashboard(), []);
   const { data, loading, error } = useAsyncResource(
     loadDashboard,
-    demoDashboardSnapshot,
+    emptyDashboard,
   );
   const metrics = data.metrics;
 
@@ -25,13 +39,10 @@ export default function DashboardScreen() {
         {error ? (
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>{error}</Text>
-            <Text style={styles.helper}>Showing demo data instead.</Text>
           </View>
         ) : (
           <Text style={styles.helper}>
-            {loading
-              ? "Syncing from backend..."
-              : "Live API with demo fallback."}
+            {loading ? "Syncing from backend..." : "Live data from your gym."}
           </Text>
         )}
         <View style={styles.grid}>

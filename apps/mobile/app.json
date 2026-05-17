@@ -3,7 +3,7 @@
     "name": "GymFlow Mobile",
     "slug": "gymflow-mobile",
     "scheme": "gymflow",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -20,17 +20,15 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.warriorlegacy.gymflow",
-      "userInterfaceStyle": "light"
+      "userInterfaceStyle": "light",
+      "permissions": ["INTERNET", "ACCESS_NETWORK_STATE"]
     },
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "plugins": [
-      "expo-router",
-      "expo-asset"
-    ],
+    "plugins": ["expo-router", "expo-asset"],
     "experiments": {
       "typedRoutes": true
     },

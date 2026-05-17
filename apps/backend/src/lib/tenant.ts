@@ -1,11 +1,10 @@
-import { DEMO_GYM_ID } from "@gymflow/lib";
-
-export function getGymIdFromRequest(headers: Record<string, string | string[] | undefined>) {
+export function getGymIdFromRequest(
+  headers: Record<string, string | string[] | undefined>,
+): string | null {
   const value = headers["x-gym-id"];
   if (Array.isArray(value)) {
-    return value[0] ?? DEMO_GYM_ID;
+    return value[0] ?? null;
   }
 
-  return value ?? DEMO_GYM_ID;
+  return value ?? null;
 }
-

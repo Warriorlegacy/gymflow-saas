@@ -1,11 +1,19 @@
 import { NextResponse } from "next/server";
-import { DEMO_SESSION_COOKIE, getSecureCookieOptions } from "@/lib/auth";
 
 export async function POST() {
   const response = NextResponse.json({ ok: true });
-  const cookieOptions = getSecureCookieOptions();
-  response.cookies.set(DEMO_SESSION_COOKIE, "", {
-    ...cookieOptions,
+  response.cookies.set("gymflow_owner_gym", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
+  response.cookies.set("gymflow_demo_session", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
     maxAge: 0,
   });
   return response;

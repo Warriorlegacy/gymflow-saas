@@ -1,4 +1,4 @@
-import { demoSubscriptionPlans } from "@gymflow/lib";
+import { subscriptionPlans } from "@gymflow/lib";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -13,7 +13,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const plan = demoSubscriptionPlans.find((entry) => entry.code === tier);
+    const plan = subscriptionPlans.find(
+      (entry: { code: string }) => entry.code === tier,
+    );
     if (!plan) {
       return NextResponse.json(
         { error: "Invalid subscription tier" },
@@ -25,7 +27,7 @@ export async function POST(request: Request) {
       success: true,
       tier: plan.code,
       amount: plan.amount,
-      message: `Demo subscription for ${plan.name} activated.`,
+      message: `Subscription for ${plan.name} activated.`,
     });
   } catch (error) {
     return NextResponse.json(
